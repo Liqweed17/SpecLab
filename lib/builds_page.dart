@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 
-class BuildsPage extends StatelessWidget {
-  const BuildsPage({super.key});
+class BuildsPage extends StatefulWidget {
+  final List<Map<String, dynamic>> savedBuilds;
 
+  const BuildsPage({super.key, this.savedBuilds = const []}); // Default value for savedBuilds
+
+  @override
+  _BuildsPageState createState() => _BuildsPageState();
+}
+
+class _BuildsPageState extends State<BuildsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -10,57 +17,169 @@ class BuildsPage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF381E72)), // Updated icon color
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF381E72)),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to the Dashboard
+            Navigator.pop(context);
           },
         ),
         title: const Text(
           'Your Builds',
           style: TextStyle(
-            color: Color(0xFF381E72), // Updated text color
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF381E72),
           ),
         ),
+        centerTitle: true,
       ),
       body: Container(
-        width: double.infinity,
-        height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/bg1.png'),
+            image: AssetImage('assets/images/bg.png'), // Background image
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Your Builds',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF381E72), // Updated text color
+        child: widget.savedBuilds.isEmpty
+            ? const Center(
+                child: Text(
+                  'No builds saved yet!',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF381E72),
+                  ),
+                ),
+              )
+            : ListView.builder(
+                itemCount: widget.savedBuilds.length,
+                itemBuilder: (context, index) {
+                  final build = widget.savedBuilds[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    child: ListTile(
+                      title: Text(
+                        build['name'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF381E72),
+                        ),
+                      ),
+                      subtitle: Text(
+                        build['components']
+                            .entries
+                            .map((e) => '${e.key}: ${e.value}')
+                            .join('\n'),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'Edit') {
+                            _editBuild(context, index);
+                          } else if (value == 'Delete') {
+                            _deleteBuild(index);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'Edit',
+                            child: Text('Edit'),
+                          ),
+                          const PopupMenuItem(
+                            value: 'Delete',
+                            child: Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
+      ),
+    );
+  }
+
+  void _editBuild(BuildContext context, int index) {
+    final TextEditingController nameController =
+        TextEditingController(text: widget.savedBuilds[index]['name']);
+    final Map<String, String> components =
+        Map<String, String>.from(widget.savedBuilds[index]['components']);
+    final Map<String, TextEditingController> componentControllers = {
+      for (var entry in components.entries) entry.key: TextEditingController(text: entry.value),
+    };
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Edit Build'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Build Name',
+                    hintText: 'Enter a new name for your build',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Components:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ...components.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: TextField(
+                      controller: componentControllers[entry.key],
+                      decoration: InputDecoration(
+                        labelText: entry.key,
+                        hintText: 'Enter a new value for ${entry.key}',
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
             ),
-            const SizedBox(height: 20),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
               onPressed: () {
-                // Add functionality here if needed
+                setState(() {
+                  widget.savedBuilds[index]['name'] = nameController.text.trim();
+                  widget.savedBuilds[index]['components'] = {
+                    for (var entry in componentControllers.entries)
+                      entry.key: entry.value.text.trim(),
+                  };
+                });
+                Navigator.pop(context); // Close the dialog
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF381E72), // Button color
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              child: const Text(
-                'Add New Build',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
+              child: const Text('Save'),
             ),
           ],
-        ),
+        );
+      },
+    );
+  }
+
+  void _deleteBuild(int index) {
+    setState(() {
+      widget.savedBuilds.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Build deleted successfully!'),
       ),
     );
   }

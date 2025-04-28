@@ -5,9 +5,9 @@ import 'signin_page.dart';
 import 'signup_page.dart';
 import 'email_add_page.dart';
 import 'dashboard.dart';
-import 'building_page.dart';
+import 'building_page.dart' as building; // Add prefix for building_page.dart
 import 'profile_page.dart';
-import 'builds_page.dart';
+import 'builds_page.dart' as builds; // Add prefix for builds_page.dart
 
 class SpecLabApp extends StatelessWidget {
   const SpecLabApp({super.key});
@@ -29,9 +29,9 @@ class SpecLabApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/emailAdd': (context) => const EmailAddPage(),
         '/dashboard': (context) => const DashboardPage(),
-        '/building': (context) => const BuildingPage(),
+        '/building': (context) => building.BuildingPage(savedBuilds: []), // Use prefix for BuildingPage
         '/profile': (context) => const ProfilePage(),
-        '/builds': (context) => const BuildsPage(),
+        '/builds': (context) => const builds.BuildsPage(), // Use prefix for BuildsPage
       },
     );
   }

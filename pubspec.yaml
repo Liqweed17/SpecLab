@@ -43,6 +43,7 @@ flutter:
     - assets/images/Build_Now.png
     - assets/images/Profile.png
     - assets/images/Your_Builds.png
+    - assets/images/Logo_Trsp.png
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
   fonts:

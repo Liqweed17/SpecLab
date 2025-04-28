@@ -16,6 +16,9 @@ class _DashboardPageState extends State<DashboardPage> {
   int _currentPage = 0;
   late Timer _timer;
 
+  // List to store saved builds
+  final List<Map<String, dynamic>> _savedBuilds = [];
+
   @override
   void initState() {
     super.initState();
@@ -60,12 +63,24 @@ class _DashboardPageState extends State<DashboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.only(left: 25, top: 50),
-                child: Image.asset(
-                  'assets/images/speclab1.png',
-                  width: 90,
-                  height: 90,
-                  fit: BoxFit.contain,
+                padding: const EdgeInsets.only(left: 25, top: 50, right: 25),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset(
+                      'assets/images/speclab1.png',
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.contain,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.logout, color: Colors.black),
+                      onPressed: () {
+                        // Logout logic here
+                        Navigator.pop(context); // Example: Navigate back to the login screen
+                      },
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
@@ -123,11 +138,11 @@ class _DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const BuildingPage()),
+                          MaterialPageRoute(builder: (context) => BuildingPage(savedBuilds: _savedBuilds)),
                         );
                       },
                       child: Container(
-                        width: 170,
+                        width: 180,
                         height: 260,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
@@ -162,8 +177,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             );
                           },
                           child: Container(
-                            width: 170,
-                            height: 120,
+                            width: 180,
+                            height: 122,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               boxShadow: [
@@ -186,17 +201,19 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 12),
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const BuildsPage()),
+                              MaterialPageRoute(
+                                builder: (context) => BuildsPage(savedBuilds: _savedBuilds),
+                              ),
                             );
                           },
                           child: Container(
-                            width: 170,
-                            height: 120,
+                            width: 180,
+                            height: 122,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               boxShadow: [
