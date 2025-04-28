@@ -107,45 +107,34 @@ class _BuildsPageState extends State<BuildsPage> {
         TextEditingController(text: widget.savedBuilds[index]['name']);
     final Map<String, String> components =
         Map<String, String>.from(widget.savedBuilds[index]['components']);
-    final Map<String, TextEditingController> componentControllers = {
-      for (var entry in components.entries) entry.key: TextEditingController(text: entry.value),
-    };
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Edit Build'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Build Name',
-                    hintText: 'Enter a new name for your build',
-                  ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Build Name',
+                  hintText: 'Enter a new name for your build',
                 ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Components:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                ...components.entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: TextField(
-                      controller: componentControllers[entry.key],
-                      decoration: InputDecoration(
-                        labelText: entry.key,
-                        hintText: 'Enter a new value for ${entry.key}',
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Components:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              ...components.entries.map((entry) {
+                return ListTile(
+                  title: Text(entry.key),
+                  subtitle: Text(entry.value),
+                );
+              }).toList(),
+            ],
           ),
           actions: [
             TextButton(
@@ -158,10 +147,6 @@ class _BuildsPageState extends State<BuildsPage> {
               onPressed: () {
                 setState(() {
                   widget.savedBuilds[index]['name'] = nameController.text.trim();
-                  widget.savedBuilds[index]['components'] = {
-                    for (var entry in componentControllers.entries)
-                      entry.key: entry.value.text.trim(),
-                  };
                 });
                 Navigator.pop(context); // Close the dialog
               },
