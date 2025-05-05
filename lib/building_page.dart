@@ -174,64 +174,65 @@ class _BuildingPageState extends State<BuildingPage> {
     );
   }
 
-  void _showSaveDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
+void _showSaveDialog(BuildContext context) {
+  final TextEditingController nameController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Save Build'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              labelText: 'Build Name',
-              hintText: 'Enter a name for your build',
-            ),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Save Build'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Build Name',
+            hintText: 'Enter a name for your build',
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final String buildName = nameController.text.trim();
+              if (buildName.isNotEmpty) {
+                // Save the selected items as a new build
+                final newBuild = {
+                  'name': buildName,
+                  'components': Map<String, String>.from(_selectedItems),
+                };
+                widget.savedBuilds.add(newBuild);
+
                 Navigator.pop(context); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final String buildName = nameController.text.trim();
-                if (buildName.isNotEmpty) {
-                  // Save the selected items as a new build
-                  final newBuild = {
-                    'name': buildName,
-                    'components': Map<String, String>.from(_selectedItems),
-                  };
-                  widget.savedBuilds.add(newBuild);
 
-                  Navigator.pop(context); // Close the dialog
-
-                  // Navigate to BuildsPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BuildsPage(savedBuilds: widget.savedBuilds),
-                    ),
-                  );
-                } else {
-                  // Show a message if the name is empty
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a name for your build!'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                // Navigate back to the DashboardPage
+                Navigator.pop(context); // Close the BuildingPage
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Your Build Has Been Saved'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              } else {
+                // Show a message if the name is empty
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Please enter a name for your build!'),
+                  ),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Widget _buildComponentCard(BuildContext context, String title, String imagePath, List<String> options) {
     return Padding(
