@@ -204,7 +204,7 @@ class _BuildingPageState extends State<BuildingPage> {
                 if (buildName.isNotEmpty) {
                   // Send build to Django backend
                   final response = await http.post(
-                    Uri.parse('http://127.0.0.1:8000/builds/create/'),
+                    Uri.parse('https://crud-mryv.onrender.com/builds/create/'),
                     headers: {'Content-Type': 'application/json'},
                     body: json.encode({
                       'name': buildName,

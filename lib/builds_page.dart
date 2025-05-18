@@ -21,7 +21,7 @@ class _BuildsPageState extends State<BuildsPage> {
 
   Future<void> fetchBuilds() async {
     setState(() => isLoading = true);
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/builds/'));
+    final response = await http.get(Uri.parse('https://crud-mryv.onrender.com/builds/'));
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
@@ -40,7 +40,7 @@ class _BuildsPageState extends State<BuildsPage> {
     final build = builds[index];
     final id = build['id'];
     final response = await http.put(
-      Uri.parse('http://127.0.0.1:8000/builds/$id/update/'),
+      Uri.parse('https://crud-mryv.onrender.com/builds/$id/update/'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'name': newName,
@@ -65,7 +65,7 @@ class _BuildsPageState extends State<BuildsPage> {
     final build = builds[index];
     final id = build['id'];
     final response = await http.delete(
-      Uri.parse('http://127.0.0.1:8000/builds/$id/delete/'),
+      Uri.parse('https://crud-mryv.onrender.com/builds/$id/delete/'),
     );
     if (response.statusCode == 204) {
       setState(() {

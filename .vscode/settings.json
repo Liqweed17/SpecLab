@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/repos/frontend/SpecLab/windows"
+    "cmake.sourceDirectory": "D:/repos/frontend/SpecLab/windows",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
