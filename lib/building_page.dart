@@ -1,5 +1,7 @@
+// ignore: depend_on_referenced_packages
 import 'package:flutter/material.dart';
-import 'builds_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class BuildingPage extends StatefulWidget {
   final List<Map<String, dynamic>> savedBuilds;
@@ -174,65 +176,73 @@ class _BuildingPageState extends State<BuildingPage> {
     );
   }
 
-void _showSaveDialog(BuildContext context) {
-  final TextEditingController nameController = TextEditingController();
+  void _showSaveDialog(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Save Build'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Build Name',
-            hintText: 'Enter a name for your build',
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Save Build'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              labelText: 'Build Name',
+              hintText: 'Enter a name for your build',
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final String buildName = nameController.text.trim();
-              if (buildName.isNotEmpty) {
-                // Save the selected items as a new build
-                final newBuild = {
-                  'name': buildName,
-                  'components': Map<String, String>.from(_selectedItems),
-                };
-                widget.savedBuilds.add(newBuild);
-
+          actions: [
+            TextButton(
+              onPressed: () {
                 Navigator.pop(context); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final String buildName = nameController.text.trim();
+                if (buildName.isNotEmpty) {
+                  // Send build to Django backend
+                  final response = await http.post(
+                    Uri.parse('http://127.0.0.1:8000/builds/create/'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: json.encode({
+                      'name': buildName,
+                      'components': Map<String, String>.from(_selectedItems),
+                    }),
+                  );
 
-                // Navigate back to the DashboardPage
-                Navigator.pop(context); // Close the BuildingPage
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Your Build Has Been Saved'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              } else {
-                // Show a message if the name is empty
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Please enter a name for your build!'),
-                  ),
-                );
-              }
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      );
-    },
-  );
-}
+                  if (response.statusCode == 201) {
+                    Navigator.pop(context); // Close the dialog
+                    Navigator.pop(context); // Close the BuildingPage
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Your Build Has Been Saved'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to save build: ${response.body}'),
+                      ),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a name for your build!'),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildComponentCard(BuildContext context, String title, String imagePath, List<String> options) {
     return Padding(

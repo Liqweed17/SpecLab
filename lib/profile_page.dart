@@ -74,7 +74,7 @@ class ProfilePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BuildsPage(savedBuilds: []), // Pass saved builds if available
+                    builder: (context) => const BuildsPage(), // Pass saved builds if available
                   ),
                 );
               },
